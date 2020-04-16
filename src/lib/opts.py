@@ -312,7 +312,7 @@ class opts(object):
           {'wh': 2})
       if opt.reg_offset:
         opt.heads.update({'reg': 2})
-    elif opt.task == 'ctdet':
+    elif opt.task == 'ctdet' or opt.task == 'housedet':
       # assert opt.dataset in ['pascal', 'coco']
       opt.heads = {'hm': opt.num_classes,
                    'wh': 2 if not opt.cat_spec_wh else 2 * opt.num_classes}
@@ -350,6 +350,9 @@ class opts(object):
       'ddd': {'default_resolution': [384, 1280], 'num_classes': 3, 
                 'mean': [0.485, 0.456, 0.406], 'std': [0.229, 0.224, 0.225],
                 'dataset': 'kitti'},
+      'housedet': {'default_resolution': [512, 512], 'num_classes': 3, 
+                'mean': [0.522, 0.537, 0.558], 'std': [0.180, 0.174, 0.171],
+                'dataset': 'house'},
     }
     class Struct:
       def __init__(self, entries):

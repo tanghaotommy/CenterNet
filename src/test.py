@@ -12,7 +12,7 @@ import time
 from progress.bar import Bar
 import torch
 
-from external.nms import soft_nms
+# from external.nms import soft_nms
 from opts import opts
 from logger import Logger
 from utils.utils import AverageMeter
@@ -39,7 +39,7 @@ class PrefetchDataset(torch.utils.data.Dataset):
           image, scale, img_info['calib'])
       else:
         images[scale], meta[scale] = self.pre_process_func(image, scale)
-    return img_id, {'images': images, 'image': image, 'meta': meta}
+    return img_id, img_path, {'images': images, 'image': image, 'meta': meta}
 
   def __len__(self):
     return len(self.images)
@@ -66,9 +66,10 @@ def prefetch_test(opt):
   bar = Bar('{}'.format(opt.exp_id), max=num_iters)
   time_stats = ['tot', 'load', 'pre', 'net', 'dec', 'post', 'merge']
   avg_time_stats = {t: AverageMeter() for t in time_stats}
-  for ind, (img_id, pre_processed_images) in enumerate(data_loader):
+  for ind, (img_id, img_path, pre_processed_images) in enumerate(data_loader):
     ret = detector.run(pre_processed_images)
-    results[img_id.numpy().astype(np.int32)[0]] = ret['results']
+    results[img_path[0]] = ret['results']
+    # results[img_id.numpy().astype(np.int32)[0]] = ret['results']
     Bar.suffix = '[{0}/{1}]|Tot: {total:} |ETA: {eta:} '.format(
                    ind, num_iters, total=bar.elapsed_td, eta=bar.eta_td)
     for t in avg_time_stats:
@@ -107,6 +108,7 @@ def test(opt):
     else:
       ret = detector.run(img_path)
     
+    ret['results']['img_path'] = img_path
     results[img_id] = ret['results']
 
     Bar.suffix = '[{0}/{1}]|Tot: {total:} |ETA: {eta:} '.format(
@@ -119,7 +121,8 @@ def test(opt):
   dataset.run_eval(results, opt.save_dir)
 
 if __name__ == '__main__':
-  opt = opts().parse()
+  # opt = opts().parse()
+  opt = opts().init()
   if opt.not_prefetch_test:
     test(opt)
   else:

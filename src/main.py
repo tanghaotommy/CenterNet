@@ -98,5 +98,6 @@ def main(opt):
   logger.close()
 
 if __name__ == '__main__':
-  opt = opts().parse()
+  # opt = opts().parse()
+  opt = opts().init()
   main(opt)
