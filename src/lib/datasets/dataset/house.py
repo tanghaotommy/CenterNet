@@ -32,11 +32,15 @@ class AnRuanTools:
       data = np.load(ann_file, allow_pickle=True).item()
       bboxes = data['bboxes']
 
-      for aid, box in enumerate(bboxes):
+      aid = 0
+      for _, box in enumerate(bboxes):
         x, y, w, h, cat_id = box
+        if cat_id != 3:
+          continue
         self.annIds.append((cid, aid))
         self.anns[cid].append((int(cat_id), float(x), float(y), float(w), float(h), len(self.imgIds) - 1, len(self.annIds) - 1))
         stats[cat_id] += 1
+        aid += 1
 
     print('stats', stats)
 
@@ -108,7 +112,7 @@ class AnRuanTools:
 
 
 class House(data.Dataset):
-  num_classes = 3
+  num_classes = 1
   default_resolution = [512, 512]
   mean = np.array([0.522, 0.537, 0.558],
                    dtype=np.float32).reshape(1, 1, 3)
@@ -122,7 +126,7 @@ class House(data.Dataset):
     self.max_objs = 128
     self.class_name = [
       '__background__', 'grass', 'iron']
-    self._valid_ids = [1, 2, 3]
+    self._valid_ids = [3]
     self.cat_ids = {v: i for i, v in enumerate(self._valid_ids)}
     self.voc_color = [(v // 32 * 64 + 64, (v // 8) % 4 * 64, v % 8 * 32) \
                       for v in range(1, self.num_classes + 1)]
